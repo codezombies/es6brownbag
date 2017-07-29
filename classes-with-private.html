@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Classes</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+<script type="text/javascript" id="script">
+
+    let createItem = function(name, price) {
+
+      let symbolQuantity = Symbol('quantity')
+      let symbolPrice = Symbol('price')
+
+      class ListItem {
+
+        constructor(name, price) {
+          this.name = name;
+          this[symbolPrice] = price;
+          this[symbolQuantity] = 0;
+        }
+
+        getTotalPrice() {
+          return this[symbolPrice] * this.quantity;
+        }
+
+        set quantity(quantity) {
+          if (quantity > 6 || quantity <= 0) {
+            throw new InvalidQuantityError(quantity)
+          }
+          console.log(`changing quantity from ${this[symbolQuantity]} to ${quantity}`)
+          this[symbolQuantity] = quantity;
+
+        }
+
+        get quantity() {
+          return this[symbolQuantity];
+        }
+
+        get totalPrice() {
+          return this.getTotalPrice();
+        }
+
+        static getType() {
+          return "ListItem"
+        }
+
+      }
+
+      class InvalidQuantityError extends Error {
+        constructor(quantity) {
+          super(`Invalid quantity: ${quantity}`)
+        }
+      }
+
+      return new ListItem(name, price)
+    }
+
+        let a = createItem("MXM4", 50)
+        console.log(a);
+        a.quantity = 2;
+        console.log('totalPrice', a.totalPrice, a.getTotalPrice())
+
+        a.quantity  = 4;
+        console.log('totalPrice', a.totalPrice, a.getTotalPrice())
+        console.log(a);
+
+    </script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>
