@@ -3,36 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>ES6 Brown Bag - Promise</title>
+    <script type="text/javascript" src="lib/async-methods.js"></script>
 </head>
 <body>
 
 <pre class="prettyprint"></pre>
 <script type="text/javascript" id="script">
 
-      let asyncOP1 = () => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve('asyncOp1 result')
-          }, 1500)
-        })
-      };
-      let asyncOP2 = (result) => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve('asyncOp2: ' + result)
-          }, 1500)
-        })
-      };
-
-
-
+      // chaining async with promises
       let doPromiseOp = async () => {
-        asyncOP1()
-          .then(asyncOP2)
-          .then(result => console.log(result))
-          .catch(error => console.error(error));
+        asyncOp0()
+          .then(asyncOp1)
+          .then(asyncOp2)
+          .then(console.log)
+          .catch(console.error);
       };
       doPromiseOp();
+
+      // executing promises "concurrently"
+      // resolves when all promises are resolved/rejected
+      Promise.all([
+        new Promise((resolve, reject) => setTimeout(resolve, 3000, "All001")),
+        new Promise((resolve, reject) => setTimeout(resolve, 2000, "All002")),
+        new Promise((resolve, reject) => setTimeout(resolve, 1000, "All003")),
+      ])
+//      .then(console.log)
+      .then(([x, y, z]) => console.log(x, y, z))
+      .catch(console.error)
+
+
+      // returns with first resolved/rejected promise
+      Promise.race([
+        new Promise((resolve, reject) => setTimeout(resolve, 3000, "RACE001")),
+        new Promise((resolve, reject) => setTimeout(resolve, 2000, "RACE002")),
+        new Promise((resolve, reject) => setTimeout(resolve, 1000, "RACE003")),
+      ])
+        .then(console.log)
+        .catch(console.error)
 
     </script>
 <script>
@@ -43,4 +50,4 @@
 </script>
 
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
-</html>
+<a href="./index.html">Back</a></html>

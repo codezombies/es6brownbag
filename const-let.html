@@ -10,17 +10,41 @@
 
 <script type="text/javascript" id="script">
 
-      // TODO - scope difference between var and let
-      for(var i = 0; i < 10; i++) {
-        console.log('i', i)
-      }
-      console.log(i);
+      // 1.) let/const variables don't get hoisted
+      (function() {
+        console.log(a)
+        console.log(b)
 
-      // TODO - difference between constant and var
-      var j = 1;
-      console.log('j == 1', j);
-      j = 2;
-      console.log('j == 2', j);
+        var a = 1
+        let b = 2
+      })();
+
+      // 2.) minimum scope of let/const is to a block, var to a function
+//      (function() {
+//        var a = 1;
+//        let b = 1;
+//        {
+//          var a = 2;
+//          let b = 2;
+//        }
+//        console.log(`a = ${a}`)
+//        console.log(`b = ${b}`)
+//      })()
+
+      // 3.) let binds a new value for every iteration
+//      for(let i = 0; i < 10; i++) {
+//        setTimeout(function() { console.log(`i=${i}`) }, 0)
+//      }
+//      console.log(i);
+
+      // 4.) const cannot be re-assigned but can be mutated (mutable)
+      // var can be re-assigned and can be mutated
+//      const tire = { brand: 'Michelin', name: 'MXM4' };
+//      console.log('tire', tire);
+//      tire = { brand: 'Goodyear', name: 'Assurance' };
+////      tire.brand = 'Goodyear';
+////      tire.name = 'Assurance';
+//      console.log('tire', tire);
 
     </script>
 <script>
@@ -31,4 +55,4 @@
 </script>
 
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
-</html>
+<a href="./index.html">Back</a></html>

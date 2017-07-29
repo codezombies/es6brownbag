@@ -26,18 +26,28 @@
         }
       }
 
-      let { name, brand } = product;
-      console.log(name, brand)
+      // properties
+      let { brand, name } = product;
+      console.log(brand, name)
 
-      let { brand: productBrand, name: productName, front: { size: frontSize }, rear: { size: rearSize }} = product;
+      // nested properties
+      let {
+            brand: productBrand,
+            name: productName,
+            front: { size: frontSize },
+            rear: { size: rearSize }
+          } = product;
       console.log(productBrand, productName, frontSize, rearSize)
 
-      let cart = { uid: 1, entries: [] }
+      // default values
+      let cart = { uid: 1 }
       let { uid, total = 0.0 } = cart;
       console.log(`cart id = ${uid}, cart total = ${total}`);
 
-
-      let showProduct = ({name, brand}) => console.log('from function', name, brand)
+      // function arguments
+      let showProduct = ({name, brand}) => {
+        console.log('from function', name, brand)
+      };
       showProduct(product)
     </script>
 <script>
@@ -48,4 +58,4 @@
 </script>
 
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
-</html>
+<a href="./index.html">Back</a></html>

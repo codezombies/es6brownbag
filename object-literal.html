@@ -11,7 +11,7 @@
 
         let Tire = { type: 'Tire' }
 
-        // ES6 equivalent
+        // ES6
         let createItem = (brand, name, quantity, price) => {
             return {
               __proto__: Tire,
@@ -28,14 +28,15 @@
         }
 
         let o = createItem('Michelin', 'MXM4', 4, 125.0);
-        console.log(Object.keys(o))
         console.dir(o)
         console.log(o.getTotalPrice())
 
         // ES5
         let _createItem = (brand, name, quantity, price) => {
-          let o = Object.create(Tire, {});
-          Object.assign(o, {
+            // create object from prototype
+            let o = Object.create(Tire, {});
+            // set normal properties
+            Object.assign(o, {
               brand: brand,
               name: name,
               quantity: quantity,
@@ -46,12 +47,12 @@
             });
             Object.defineProperty(o, 'is' + brand, {
               enumerable: true,
+              writable: true,
               value: true
             });
             return o;
         }
         let _o = _createItem('Michelin', 'MXM4', 4, 125.0);
-        console.log(Object.keys(_o))
         console.dir(_o)
         console.log(_o.getTotalPrice())
 
@@ -64,4 +65,4 @@
 </script>
 
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
-</html>
+<a href="./index.html">Back</a></html>

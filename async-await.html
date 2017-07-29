@@ -3,38 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>ES6 Brown Bag - Async/Await</title>
+    <script type="text/javascript" src="lib/async-methods.js"></script>
 </head>
 <body>
 
 <pre class="prettyprint"></pre>
 <script type="text/javascript" id="script">
 
-          let asyncOP1 = () => {
-            return new Promise((resolve, reject) => {
-              setTimeout(() => {
-                resolve('asyncOp1 result')
-              }, 1500)
-            })
-          };
-          let asyncOP2 = (result) => {
-            return new Promise((resolve, reject) => {
-              setTimeout(() => {
-                reject('asyncOp2: ' + result)
-              }, 1500)
-            })
-          };
-
         let doAsyncAwaitOp = async () => {
           try {
-            let result1 = await asyncOP1();
-            let result2 = await asyncOP2(result1)
-            console.log(result2)
+            let result0 = await asyncOp0();
+            console.log('result0', result0)
+            let result1 = await asyncOp1(result0);
+            console.log('result1', result1)
+            let result2 = await asyncOp2(result1)
+            console.log('result2', result2)
+            return result2;
           } catch (e) {
             console.error(e)
           }
         };
 
-        doAsyncAwaitOp();
+        // result of an async function is a promise
+        let result = doAsyncAwaitOp();
+        console.log('result is a promise', result)
+        result.then(data => {
+          console.log("We got data", data)
+        })
 
     </script>
 <script>
@@ -45,4 +40,4 @@
 </script>
 
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
-</html>
+<a href="./index.html">Back</a></html>

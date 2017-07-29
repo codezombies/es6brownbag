@@ -57,12 +57,16 @@
                 minus = document.getElementById('minus'),
                 result = document.getElementById('result');
             var self = this;
-            add.onclick = function(event) {
-              result.innerHTML = self.timesClicked++;
+            let addClick = function (event) {
+              // this === button
+              result.innerHTML = ++this.timesClicked;
             }
-            minus.onclick = function(event) {
-              result.innerHTML = self.timesClicked--;
+            let minusClick = function (event) {
+              result.innerHTML = --self.timesClicked;
             }
+
+            add.onclick = addClick;
+            minus.onclick = minusClick;
           }
         }
         ButtonHandler.init();

@@ -9,6 +9,7 @@
 <pre class="prettyprint"></pre>
 <script type="text/javascript" id="script">
 
+    // ES6
       let createPerson = (name, ...hobbies) => {
         // below is same as { name: name, hobbies: hobbies }
         return {
@@ -16,8 +17,16 @@
           hobbies
         }
       }
-
       console.log(createPerson('Ron', 'A', 'B', 'C', 'D'))
+
+    // ES5
+    let _createPerson = function(name) {
+      return {
+        name: name,
+        hobbies: Array.prototype.slice.call(arguments, 1)
+      }
+    }
+    console.log(_createPerson('Ron', 'A', 'B', 'C', 'D'))
 
     </script>
 <script>
@@ -28,4 +37,4 @@
 </script>
 
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
-</html>
+<a href="./index.html">Back</a></html>
