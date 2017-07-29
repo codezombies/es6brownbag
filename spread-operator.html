@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Spread Operator</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+<script type="text/javascript" id="script">
+
+      // arrays
+      let arr1 = [1, 2, 3]
+      let arr2 = [...arr1]
+      console.log(arr1 === arr2)
+
+      let addThree = (x, y, z) => {
+        return x + y + z;
+      }
+      console.log(addThree(...arr1))
+
+      let threeNumbers = () => [5, 10, 15]
+      console.log('w/ ', ...threeNumbers())
+      console.log('w/o', threeNumbers())
+
+      // objects
+      let o = { name: 'Ron', numbers: [0, 1, 2, 3] }
+      let p = { ...o }
+
+      console.log(o === p)
+      console.log({ ...o, numbers: [10, 20]})
+
+    </script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>

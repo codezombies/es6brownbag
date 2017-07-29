@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Modules</title>
+</head>
+<body>
+
+    <!-- currently does not work in chrome but works in safari -->
+    <pre class="prettyprint"></pre>
+    <script type="module" id="script">
+      import defaultFn, { PI, add as plus, minus } from './lib/index.js'
+      console.log('add', plus(5, 5))
+      console.log('subtract', minus(3, 1.5))
+      console.log('PI', PI)
+      console.log(defaultFn(500))
+
+//      import defaultFn, * as namespace from './lib/index.js'
+//      console.log('add', namespace.add(5, 5))
+//      console.log('subtract', namespace.minus(3, 1.5))
+//      console.log('PI', namespace.PI)
+//      console.log(defaultFn(500))
+
+    </script>
+    <script>
+      document.getElementsByTagName('pre')[0].innerHTML =
+        document.getElementsByTagName('title')[0].innerText
+        + ' '
+        + document.getElementById('script').innerText
+    </script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>

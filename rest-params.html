@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Rest Params</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+<script type="text/javascript" id="script">
+
+      let createPerson = (name, ...hobbies) => {
+        // below is same as { name: name, hobbies: hobbies }
+        return {
+          name,
+          hobbies
+        }
+      }
+
+      console.log(createPerson('Ron', 'A', 'B', 'C', 'D'))
+
+    </script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>

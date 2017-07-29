@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Destructuring</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+<script type="text/javascript" id="script">
+
+      // arrays
+      let arr = [5, 10, 15]
+      let [x, ,y]  = arr
+      console.log(x, y)
+
+      // objects
+      let product = {
+        brand : 'Michelin',
+        name : 'MXM4',
+        front: {
+          size: '225/55/16'
+        },
+        rear: {
+          size: '245/50/16'
+        }
+      }
+
+      let { name, brand } = product;
+      console.log(name, brand)
+
+      let { brand: productBrand, name: productName, front: { size: frontSize }, rear: { size: rearSize }} = product;
+      console.log(productBrand, productName, frontSize, rearSize)
+
+      let cart = { uid: 1, entries: [] }
+      let { uid, total = 0.0 } = cart;
+      console.log(`cart id = ${uid}, cart total = ${total}`);
+
+
+      let showProduct = ({name, brand}) => console.log('from function', name, brand)
+      showProduct(product)
+    </script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Classes</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+<script type="text/javascript" id="script">
+
+        class ListItem {
+
+          constructor(name) {
+            this.name = name;
+          }
+
+          getName() {
+            return this.name;
+          }
+
+          set quantity(quantity) {
+            if(quantity > 6 || quantity <= 0) {
+              throw new InvalidQuantityError(quantity)
+            }
+            this._quantity = quantity;
+
+          }
+
+          get quantity() {
+            return this._quantity;
+          }
+
+          static getType() {
+            return "ListItem"
+          }
+
+        }
+
+        class InvalidQuantityError extends Error {
+          constructor(quantity) {
+            super(`Invalid quantity: ${quantity}`)
+          }
+        }
+
+        let a = new ListItem("MXM4")
+        console.log(a.getName());
+        a.quantity = 2;
+        console.log(a);
+        a.quantity  = 8;
+        console.log(a);
+    </script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Enhanced Object Literal</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+<script type="text/javascript" id="script">
+
+        let Tire = { type: 'Tire' }
+
+        // ES6 equivalent
+        let createItem = (brand, name, quantity, price) => {
+            return {
+              __proto__: Tire,
+              brand,
+              name,
+              quantity,
+              price,
+              getTotalPrice() {
+                return price * quantity
+              },
+              // dynamic property
+              [`is${brand}`]: true
+            }
+        }
+
+        let o = createItem('Michelin', 'MXM4', 4, 125.0);
+        console.log(Object.keys(o))
+        console.dir(o)
+        console.log(o.getTotalPrice())
+
+        // ES5
+        let _createItem = (brand, name, quantity, price) => {
+          let o = Object.create(Tire, {});
+          Object.assign(o, {
+              brand: brand,
+              name: name,
+              quantity: quantity,
+              price: price,
+              getTotalPrice: function getTotalPrice() {
+                return price * quantity
+              }
+            });
+            Object.defineProperty(o, 'is' + brand, {
+              enumerable: true,
+              value: true
+            });
+            return o;
+        }
+        let _o = _createItem('Michelin', 'MXM4', 4, 125.0);
+        console.log(Object.keys(_o))
+        console.dir(_o)
+        console.log(_o.getTotalPrice())
+
+    </script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>

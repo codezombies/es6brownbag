@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Let/Const</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+<script type="text/javascript" id="script">
+
+      // initialize map
+      let numbers = new Map([['one', 1], ['two', 2]])
+      console.log('after init', numbers);
+
+      // add new values
+      numbers.set('three', 3)
+      console.log('after adding three', numbers);
+
+      // size
+      console.log('numbers.size', numbers.size)
+
+      // delete
+      numbers.delete('two')
+      console.log('after delete', numbers);
+
+      // has and get
+      console.log('has zero', numbers.has('zero'))
+      console.log('has one', numbers.has('one'))
+      console.log('get zero', numbers.get('zero'))
+      console.log('get one', numbers.get('one'))
+
+      // for-of iterating
+      for([k, v] of numbers) {
+        console.log(`k=${k}, v=${v}`)
+      }
+      // numbers.forEach
+      numbers.forEach((k,v) => console.log(k, v));
+
+      numbers.clear();
+      console.log('after clear', numbers);
+
+      // Sets - unique entries
+      let car = {name: 'car'}
+      let tire = {name: 'tire'}
+      let things = new Set([1, 2, 1, "A", "B", "A", car, car, tire])
+      console.log('after init', things)
+
+      // add
+      things.add(3, 4)
+      console.log('after add', things)
+
+      // size
+      console.log(things.size)
+
+      // delete
+      things.delete(car)
+      things.delete('B')
+      console.log('after delete', things)
+
+      // has
+      console.log('has B', things.has('B'))
+      console.log('has A', things.has('A'))
+
+      // clear
+      things.clear()
+
+      console.log('after clear', things)
+
+    </script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+</html>
