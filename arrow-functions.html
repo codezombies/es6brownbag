@@ -23,41 +23,53 @@
 </head>
 <body>
 
-    <article>
-        <button id="minus">-</button>
-        <div id="result">0</div>
-        <button id="add">+</button>
-    </article>
-
     <pre class="prettyprint"></pre>
     <script type="text/javascript" id="script">
 
         // optional parenthesis for single arguments
         // optional return keyword for one-liner declaration
+        console.log('---');
         let double = x => x + x;
         console.log('double', double(2))
-
         let add = (x, y) => x + y;
         console.log('add', add(2, 3))
 
 
         // with body
-        // TODO - show destructuring on params
+        console.log('---');
         let calculatePrice = product => {
             return product.quantity * product.price;
         }
         console.log('calculatePrice', calculatePrice({ quantity: 2, price: 60 }))
 
+        // arrow functions can't bind this to another object
+        console.log('---');
+        var name = 'Global'
+        let person = { name: 'Ron '}
+        let sayFunc  = function() { console.log('sayFunc', this.name) }
+        let sayArrow = () => console.log('sayArrow', this.name)
+
+        sayFunc();
+        sayArrow();
+
+        console.log('===');
+        sayFunc.call(person);
+        sayArrow.call(person);
+
+        console.log('===');
+        sayFunc.bind(person)();
+        sayArrow.bind(person)();
+
         // lexical this
-        // TODO - use arrow functions to show how 'this' gets binded
+        console.log('---');
         let ButtonHandler = {
           timesClicked: 0,
           init() {
             let add = document.getElementById('add'),
-                minus = document.getElementById('minus'),
-                result = document.getElementById('result');
+              minus = document.getElementById('minus'),
+              result = document.getElementById('result');
             var self = this;
-            let addClick = function (event) {
+            let addClick = function(event) {
               // this === button
               result.innerHTML = ++this.timesClicked;
             }
@@ -69,7 +81,8 @@
             minus.onclick = minusClick;
           }
         }
-        ButtonHandler.init();
+        window.onload = () => ButtonHandler.init();
+
     </script>
     <script>
       document.getElementsByTagName('pre')[0].innerHTML =
@@ -78,5 +91,13 @@
             + document.getElementById('script').innerText
     </script>
 
-<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+    <article>
+        <button id="minus">-</button>
+        <div id="result">0</div>
+        <button id="add">+</button>
+    </article>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <a href="./index.html">Back</a>
+</body>
 </html>

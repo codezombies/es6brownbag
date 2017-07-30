@@ -32,7 +32,7 @@
         console.log(o.getTotalPrice())
 
         // ES5
-        let _createItem = (brand, name, quantity, price) => {
+        var _createItem = function(brand, name, quantity, price) {
             // create object from prototype
             let o = Object.create(Tire, {});
             // set normal properties
@@ -52,7 +52,7 @@
             });
             return o;
         }
-        let _o = _createItem('Michelin', 'MXM4', 4, 125.0);
+        var _o = _createItem('Michelin', 'MXM4', 4, 125.0);
         console.dir(_o)
         console.log(_o.getTotalPrice())
 

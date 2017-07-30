@@ -11,15 +11,24 @@
 <script type="text/javascript" id="script">
 
       // 1.) let/const variables don't get hoisted
-      (function() {
-        console.log(a)
-        console.log(b)
+//      console.log('---');
+//      (function() {
+//        console.log(a)
+//        console.log(b)
+//
+//        var a = 1
+//        let b = 2
+//      })();
 
-        var a = 1
-        let b = 2
-      })();
+      // 2.) let/const variables don't get set to the global object (window)
+//      console.log('---');
+//      var a = 1;
+//      let b = 2;
+//      console.log('window.a', window.a);
+//      console.log('window.b', window.b);
 
-      // 2.) minimum scope of let/const is to a block, var to a function
+      // 3.) minimum scope of let/const is to a block, var to a function
+//      console.log('---');
 //      (function() {
 //        var a = 1;
 //        let b = 1;
@@ -31,14 +40,16 @@
 //        console.log(`b = ${b}`)
 //      })()
 
-      // 3.) let binds a new value for every iteration
+      // 4.) let binds a new value for every iteration
+//      console.log('---');
 //      for(let i = 0; i < 10; i++) {
 //        setTimeout(function() { console.log(`i=${i}`) }, 0)
 //      }
 //      console.log(i);
 
-      // 4.) const cannot be re-assigned but can be mutated (mutable)
+      // 5.) const cannot be re-assigned but can be mutated (mutable)
       // var can be re-assigned and can be mutated
+//      console.log('---');
 //      const tire = { brand: 'Michelin', name: 'MXM4' };
 //      console.log('tire', tire);
 //      tire = { brand: 'Goodyear', name: 'Assurance' };

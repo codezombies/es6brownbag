@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Proxy and Reflect</title>
+</head>
+<body>
+
+<pre class="prettyprint"></pre>
+
+<script type="text/javascript" id="script">
+
+let loggingHandler = {
+    apply: function(target, thisArg, argumentsList) {
+      let result = Reflect.apply(target, thisArg, argumentsList)
+      console.log(`called ${target.name}(${argumentsList}) = ${result}`)
+      return result;
+    }
+}
+
+class TireService {
+  constructor(rootApi = '/tires') {
+    this.rootApi = rootApi;
+  }
+
+  count() {
+    return 100;
+  }
+}
+let apiHandler = {
+  get: function(target, property, receiver) {
+    if(target[property] !== undefined) {
+      return Reflect.get(target, property, receiver);
+    }
+
+    const rootApi = target.rootApi;
+    // findBy = GET
+    if(property.indexOf('findBy') === 0) {
+      let propertyNames = property
+        .substring('findBy'.length)
+        .split('And')
+        .map(s => s.toLowerCase())
+      return (...args) =>  {
+        let params = [];
+        for(let i = 0; i < propertyNames.length; i++) {
+          params.push(`${propertyNames[i]}=${args[i]}`);
+        }
+        console.log(`(GET) ${rootApi}?${params.join('&')}`);
+      }
+    }
+    // delete = DELETE
+    else if (property.indexOf("delete") === 0) {
+      return (id) =>  {
+        console.log(`(DELETE) ${rootApi}/${id}`);
+      }
+    }
+    // create = POST
+    else if (property.indexOf("create") === 0) {
+      return (obj) =>  {
+        console.log(`(POST) ${rootApi}`, obj);
+      }
+    }
+    // update = PUT or PATCH
+    else if (property.indexOf("update") === 0) {
+      return (id, obj) =>  {
+        console.log(`(PUT) ${rootApi}/${id}`, obj);
+      }
+    }
+
+    throw new Error(`no property found: ${property}`);
+  }
+}
+let proxy = new Proxy(new TireService(), apiHandler)
+
+</script>
+<script>
+  document.getElementsByTagName('pre')[0].innerHTML =
+    document.getElementsByTagName('title')[0].innerText
+    + ' '
+    + document.getElementById('script').innerText
+</script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+<a href="./index.html">Back</a></html>

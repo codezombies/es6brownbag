@@ -19,7 +19,7 @@
       }
 
 //      let numbers = numbersGenerator();
-//      console.log(numbers.next()) // returns { value: <any>, done: boolean }
+//      console.log(numbers.next()) // returns { value: &lt;any&gt;, done: boolean }
 //      console.log(numbers.next())
 //      console.log(numbers.next())
 
@@ -33,11 +33,11 @@
         console.log('c', c)
       }
 
-//      let params = paramExample()
-//      console.log(params.next())     // returns 1 from 'yield 1', first param is ignored
-//      console.log(params.next(100))  // 'a = yield 1' = 100, returns 2 + a
-//      console.log(params.next(1000)) // 'b = yield 2' = 1000, returns 3 + b
-//      console.log(params.next(0))    // 'c = yield 3' = 0, no more waiting yield, done = true
+      let params = paramExample()
+      console.log(params.next())     // returns 1 from 'yield 1', first param is ignored
+      console.log(params.next(100))  // 'a = yield 1' = 100, returns 2 + a
+      console.log(params.next(1000)) // 'b = yield 2' = 1000, returns 3 + b
+      console.log(params.next(0))    // 'c = yield 3' = 0, no more waiting yield, done = true
 
       // async operations using generators
       function async(gen) {
@@ -62,8 +62,9 @@
                 // we pass the data to it.next as a result to yield expression
                 next(it.next(data).value);
               }).catch(err => {
-                reject(new Error(err))
-                it.throw(new Error(err));
+                const error = new Error(err);
+                reject(error); // for the returned promise of async function
+                it.throw(error); // for the generator
               })
             }
           }
