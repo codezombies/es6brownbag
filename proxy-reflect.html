@@ -14,41 +14,62 @@ let loggingHandler = {
     apply: function(target, thisArg, argumentsList) {
       let result = Reflect.apply(target, thisArg, argumentsList)
       console.log('========================');
-      console.log(`calling ${target.name}`);
-      console.log('arguments', argumentsList);
-      console.log('result', result)
+      console.log(`called: ${target.name}(${argumentsList.map(x => this.transform(target.name, x)).join(', ')})`);
       console.log('========================');
       return result;
+    },
+    transform: function(fn, obj) {
+      if(fn === 'password') return 'xxxxxx';
+      if(fn === 'ssn') return 'XXX-XX-' + obj.substring(obj.length - 4);
+      if(typeof obj === 'string') {
+        return `"${obj}"`;
+      }
+      else if (typeof obj === 'object') {
+        return JSON.stringify(obj)
+      }
+      return obj;
     }
 }
 
-let Builder  = (obj = {}, interceptor = {}) => {
-  let handler = {
+let Builder  = (obj = {}, ...interceptors) => {
+  let _target = Object.assign({}, obj), handler = {
     get: function(target, property, receiver) {
 
+      let ret;
       // if build is called, return the object
       if(property === 'build') {
-        return () => {
-          return Object.assign({}, target)
+        let created = Object.assign({}, _target);
+        ret = () => {
+          return created;
         }
+        _target = Object.assign({}, obj);
       }
       // if set or with is called, it should return a function
       // with key/value pair with key as property name
       else if (property === 'set' || property === 'with') {
-        let fn = (key, val) => {
-          target[key] = val;
+        ret = (key, val) => {
+          _target[key] = val;
           return receiver;
         }
-        return new Proxy(fn, interceptor)
       }
-
       // any other will return a function that will set
       // function name as the param name
-      let fn = (val) => {
-        target[property] = val;
-        return receiver;
+      else {
+        ret = function(val) {
+          _target[property] = val;
+          return receiver;
+        }
       }
-      return new Proxy(fn, interceptor)
+
+      // set correct name of function
+      Object.defineProperty(ret, 'name', { value: property });
+      return this.compose(ret, interceptors);
+    },
+    compose : function(result, interceptors) {
+      interceptors.forEach(interceptor => {
+        result = new Proxy(result, interceptor);
+      })
+      return result;
     }
   }
 
@@ -56,7 +77,7 @@ let Builder  = (obj = {}, interceptor = {}) => {
 }
 
 
-let API = (rootUrl, interceptor = {}) => {
+let API = (rootUrl, ...interceptors) => {
   let handler = {
     get: function(target, property, receiver) {
       if(Reflect.has(target, property)) {
@@ -64,8 +85,14 @@ let API = (rootUrl, interceptor = {}) => {
       }
 
       const rootApi = target.rootUrl;
+      if(property.indexOf('findAll') === 0) {
+        let findAllAPI = (...args) =>  {
+          return axios.get(`${rootApi}`);
+        }
+        return this.compose(findAllAPI, interceptors);
+      }
       // findBy = GET
-      if(property.indexOf('findBy') === 0) {
+      else if(property.indexOf('findBy') === 0) {
         let propertyNames = property
           .substring('findBy'.length)
           .split('And')
@@ -75,41 +102,66 @@ let API = (rootUrl, interceptor = {}) => {
           for(let i = 0; i < propertyNames.length; i++) {
             params.push(`${propertyNames[i]}=${args[i]}`);
           }
-          console.log(`(GET) ${rootApi}?${params.join('&')}`);
-          return { status: 'ok' }
+          return axios.get(`${rootApi}?${params.join('&')}`);
         }
-        return new Proxy(findAPI, interceptor);
+        return this.compose(findAPI, interceptors);
       }
       // delete = DELETE
       else if (property.indexOf("delete") === 0) {
         let deleteAPI = (id) =>  {
-          console.log(`(DELETE) ${rootApi}/${id}`);
-          return { status: 'ok' }
+          return axios.delete(`${rootApi}/${id}`)
         }
-        return new Proxy(deleteAPI, interceptor);
+        return this.compose(deleteAPI, interceptors);
       }
       // create = POST
       else if (property.indexOf("create") === 0) {
         let createAPI = (obj) =>  {
-          console.log(`(POST) ${rootApi}`, obj);
-          return { status: 'ok' }
+          return axios.post(`${rootApi}`, obj)
         }
-        return new Proxy(createAPI, interceptor);
+        return this.compose(createAPI, interceptors);
       }
       // update = PUT or PATCH
       else if (property.indexOf("update") === 0) {
         let updateAPI = (id, obj) =>  {
-          console.log(`(PUT) ${rootApi}/${id}`, obj);
-          return { status: 'ok' }
+          return axios.put(`${rootApi}/${id}`, obj)
         }
-        return new Proxy(updateAPI, interceptor);
+        return this.compose(updateAPI, interceptors);
       }
 
       throw new Error(`no property found: ${property}`);
+    },
+    compose : function(result, interceptors) {
+      interceptors.forEach(interceptor => {
+        result = new Proxy(result, interceptor);
+      })
+      return result;
     }
   }
 
   return new Proxy({ rootUrl  }, handler)
+}
+
+// other handlers
+let alternateCaseHandler = {
+  apply: function(target, thisArg, argumentsList) {
+    return Reflect.apply(
+      target, thisArg,
+      argumentsList.map(x => typeof x === 'string'
+        ? x.split('').map((y, z) => z % 2 === 0
+              ? y.toUpperCase()
+              : y.toLowerCase()).join('')
+        : x )
+    );
+  }
+}
+
+let reverseHandler = {
+  apply: function(target, thisArg, argumentsList) {
+    return Reflect.apply(
+      target, thisArg,
+      argumentsList.map(x => typeof x === 'string' ? x.split('').reverse().join('') : x)
+    )
+  }
 }
 
 </script>
@@ -120,5 +172,11 @@ let API = (rootUrl, interceptor = {}) => {
     + document.getElementById('script').innerText
 </script>
 
+<!--
+  for demo:
+  1.) npm install -g json-server
+  2.) json-server db.json --port=3002
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
 <a href="./index.html">Back</a></html>

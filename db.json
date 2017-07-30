@@ -1,0 +1,91 @@
+{
+  "users": [
+    {
+      "id" : 1,
+      "name": "Ron",
+      "group": "admin"
+    },
+    {
+      "id" : 2,
+      "name": "John Doe",
+      "group": "employee"
+    },
+    {
+      "id" : 3,
+      "name": "Jane Doe",
+      "group": "employee"
+    },
+    {
+      "id" : 4,
+      "name": "Sarah Kerrigan",
+      "group": "customer"
+    },
+    {
+      "id" : 5,
+      "name": "Jim Raynor",
+      "group": "customer"
+    }
+  ],
+  "tires": [
+    {
+      "id": 1,
+      "brand": "Michelin",
+      "name": "Defender",
+      "warranty": 50000
+    },
+    {
+      "id": 2,
+      "brand": "Michelin",
+      "name": "Premier A/S",
+      "warranty": 50000
+    },
+    {
+      "id": 3,
+      "brand": "Michelin",
+      "name": "Energy Saver",
+      "warranty": 20000
+    },
+    {
+      "id": 4,
+      "brand": "Michelin",
+      "name": "Primacy MXM4",
+      "warranty": 20000
+    },
+    {
+      "id": 5,
+      "brand": "Michelin",
+      "name": "Primacy MXV4",
+      "warranty": 80000
+    },
+    {
+      "id": 8,
+      "brand": "Fuzion",
+      "name": "Touring",
+      "warranty": 50000
+    },
+    {
+      "id": 9,
+      "brand": "Fuzion",
+      "name": "UHP",
+      "warranty": 50000
+    },
+    {
+      "id": 8,
+      "brand": "Goodyear",
+      "name": "Eagle LS",
+      "warranty": 50000
+    },
+    {
+      "id": 9,
+      "brand": "Goodyear",
+      "name": "Wrangler Radial",
+      "warranty": 20000
+    },
+    {
+      "id": 10,
+      "brand": "Goodyear",
+      "name": "Assurance All Season",
+      "warranty": 80000
+    }
+  ]
+}
