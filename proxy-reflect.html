@@ -13,64 +13,104 @@
 let loggingHandler = {
     apply: function(target, thisArg, argumentsList) {
       let result = Reflect.apply(target, thisArg, argumentsList)
-      console.log(`called ${target.name}(${argumentsList}) = ${result}`)
+      console.log('========================');
+      console.log(`calling ${target.name}`);
+      console.log('arguments', argumentsList);
+      console.log('result', result)
+      console.log('========================');
       return result;
     }
 }
 
-class TireService {
-  constructor(rootApi = '/tires') {
-    this.rootApi = rootApi;
-  }
+let Builder  = (obj = {}, interceptor = {}) => {
+  let handler = {
+    get: function(target, property, receiver) {
 
-  count() {
-    return 100;
-  }
-}
-let apiHandler = {
-  get: function(target, property, receiver) {
-    if(target[property] !== undefined) {
-      return Reflect.get(target, property, receiver);
-    }
-
-    const rootApi = target.rootApi;
-    // findBy = GET
-    if(property.indexOf('findBy') === 0) {
-      let propertyNames = property
-        .substring('findBy'.length)
-        .split('And')
-        .map(s => s.toLowerCase())
-      return (...args) =>  {
-        let params = [];
-        for(let i = 0; i < propertyNames.length; i++) {
-          params.push(`${propertyNames[i]}=${args[i]}`);
+      // if build is called, return the object
+      if(property === 'build') {
+        return () => {
+          return Object.assign({}, target)
         }
-        console.log(`(GET) ${rootApi}?${params.join('&')}`);
       }
-    }
-    // delete = DELETE
-    else if (property.indexOf("delete") === 0) {
-      return (id) =>  {
-        console.log(`(DELETE) ${rootApi}/${id}`);
+      // if set or with is called, it should return a function
+      // with key/value pair with key as property name
+      else if (property === 'set' || property === 'with') {
+        let fn = (key, val) => {
+          target[key] = val;
+          return receiver;
+        }
+        return new Proxy(fn, interceptor)
       }
-    }
-    // create = POST
-    else if (property.indexOf("create") === 0) {
-      return (obj) =>  {
-        console.log(`(POST) ${rootApi}`, obj);
-      }
-    }
-    // update = PUT or PATCH
-    else if (property.indexOf("update") === 0) {
-      return (id, obj) =>  {
-        console.log(`(PUT) ${rootApi}/${id}`, obj);
-      }
-    }
 
-    throw new Error(`no property found: ${property}`);
+      // any other will return a function that will set
+      // function name as the param name
+      let fn = (val) => {
+        target[property] = val;
+        return receiver;
+      }
+      return new Proxy(fn, interceptor)
+    }
   }
+
+  return new Proxy(obj, handler)
 }
-let proxy = new Proxy(new TireService(), apiHandler)
+
+
+let API = (rootUrl, interceptor = {}) => {
+  let handler = {
+    get: function(target, property, receiver) {
+      if(Reflect.has(target, property)) {
+        return Reflect.get(target, property, receiver);
+      }
+
+      const rootApi = target.rootUrl;
+      // findBy = GET
+      if(property.indexOf('findBy') === 0) {
+        let propertyNames = property
+          .substring('findBy'.length)
+          .split('And')
+          .map(s => s.toLowerCase())
+        let findAPI = (...args) =>  {
+          let params = [];
+          for(let i = 0; i < propertyNames.length; i++) {
+            params.push(`${propertyNames[i]}=${args[i]}`);
+          }
+          console.log(`(GET) ${rootApi}?${params.join('&')}`);
+          return { status: 'ok' }
+        }
+        return new Proxy(findAPI, interceptor);
+      }
+      // delete = DELETE
+      else if (property.indexOf("delete") === 0) {
+        let deleteAPI = (id) =>  {
+          console.log(`(DELETE) ${rootApi}/${id}`);
+          return { status: 'ok' }
+        }
+        return new Proxy(deleteAPI, interceptor);
+      }
+      // create = POST
+      else if (property.indexOf("create") === 0) {
+        let createAPI = (obj) =>  {
+          console.log(`(POST) ${rootApi}`, obj);
+          return { status: 'ok' }
+        }
+        return new Proxy(createAPI, interceptor);
+      }
+      // update = PUT or PATCH
+      else if (property.indexOf("update") === 0) {
+        let updateAPI = (id, obj) =>  {
+          console.log(`(PUT) ${rootApi}/${id}`, obj);
+          return { status: 'ok' }
+        }
+        return new Proxy(updateAPI, interceptor);
+      }
+
+      throw new Error(`no property found: ${property}`);
+    }
+  }
+
+  return new Proxy({ rootUrl  }, handler)
+}
 
 </script>
 <script>
