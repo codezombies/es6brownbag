@@ -78,57 +78,42 @@ let Builder  = (obj = {}, ...interceptors) => {
 }
 
 
-let API = (rootUrl, ...interceptors) => {
+let API = (rootUrl, baseObj = {}, ...interceptors) => {
   let handler = {
     get: function(target, property, receiver) {
       if(Reflect.has(target, property)) {
-        return Reflect.get(target, property, receiver);
+        return this.compose(Reflect.get(target, property, receiver), interceptors);
       }
 
-      const rootApi = target.rootUrl;
-      if(property.indexOf('findAll') === 0) {
-        let findAllAPI = (...args) =>  {
-          return axios.get(`${rootApi}`);
-        }
-        return this.compose(findAllAPI, interceptors);
-      }
-      // findBy = GET
-      else if(property.indexOf('findBy') === 0) {
+      const { rootUrl } = target;
+      if(property.indexOf('findBy') === 0) {
         let propertyNames = property
           .substring('findBy'.length)
           .split('And')
           .map(s => s.toLowerCase())
-        let findAPI = (...args) =>  {
+        let findBy = (...args) =>  {
+
+          // filters
           let params = [];
           for(let i = 0; i < propertyNames.length; i++) {
-            params.push(`${propertyNames[i]}=${args[i]}`);
+            let propValue = args[i]
+            if(typeof propValue === 'object') {
+              params = params.concat(Object.keys(propValue).map(key => `${propertyNames[i]}_${key}=${propValue[key]}`))
+            }
+            else {
+              params.push(`${propertyNames[i]}=${args[i]}`);
+            }
           }
-          return axios.get(`${rootApi}?${params.join('&')}`);
-        }
-        return this.compose(findAPI, interceptors);
-      }
-      // delete = DELETE
-      else if (property.indexOf("delete") === 0) {
-        let deleteAPI = (id) =>  {
-          return axios.delete(`${rootApi}/${id}`)
-        }
-        return this.compose(deleteAPI, interceptors);
-      }
-      // create = POST
-      else if (property.indexOf("create") === 0) {
-        let createAPI = (obj) =>  {
-          return axios.post(`${rootApi}`, obj)
-        }
-        return this.compose(createAPI, interceptors);
-      }
-      // update = PUT or PATCH
-      else if (property.indexOf("update") === 0) {
-        let updateAPI = (id, obj) =>  {
-          return axios.put(`${rootApi}/${id}`, obj)
-        }
-        return this.compose(updateAPI, interceptors);
-      }
 
+          // sort and pagination
+          let options = args.length > params.length ? args[args.length - 1] : {};
+          params = params.concat(Object.keys(options).map(op => `_${op}=${options[op]}`));
+
+          // request
+          return axios.get(`${rootUrl}?${params.join('&')}`);
+        }
+        return this.compose(findBy, interceptors);
+      }
       throw new Error(`no property found: ${property}`);
     },
     compose : function(result, interceptors) {
@@ -139,10 +124,42 @@ let API = (rootUrl, ...interceptors) => {
     }
   }
 
-  return new Proxy({ rootUrl  }, handler)
+  // base object defines crud operator
+  let obj = {
+    create(data) {
+      return axios.post(`${rootUrl}`, data)
+    },
+    find(id) {
+      return axios.get(`${rootUrl}/${id}`);
+    },
+    findAll(options = {}) {
+      let pageAndSort = Object.keys(options).map(op => `_${op}=${options[op]}`).join('&');
+      return axios.get(`${rootUrl}?${pageAndSort}`);
+    },
+    update(id, data) {
+      return axios.put(`${rootUrl}/${id}`, data)
+    },
+    delete(id) {
+      return axios.delete(`${rootUrl}/${id}`)
+    }
+  }
+
+  return new Proxy({ ...obj, ...baseObj, rootUrl }, handler)
 }
 
 // other handlers
+let responseHandler = {
+    apply: function(target, thisArg, argumentsList) {
+      let result = Reflect.apply(target, thisArg, argumentsList)
+		  result.then(({ data }) => {
+        console.log('========================');
+      	console.table(data);
+        console.log('========================');
+		  });
+      return result;
+    }
+}
+
 let alternateCaseHandler = {
   apply: function(target, thisArg, argumentsList) {
     return Reflect.apply(
@@ -177,6 +194,12 @@ let reverseHandler = {
   for demo:
   1.) npm install -g json-server
   2.) json-server db.json --port=3002
+
+  var baseObj = {
+    search(text) {
+      return axios.get(`http://localhost:3002/users?q=${text}`)
+    }
+  }
 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
