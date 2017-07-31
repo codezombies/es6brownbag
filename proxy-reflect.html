@@ -106,7 +106,7 @@ let API = (rootUrl, baseObj = {}, ...interceptors) => {
           }
 
           // sort and pagination
-          let options = args.length > params.length ? args[args.length - 1] : {};
+          let options = args.length > propertyNames.length ? args[args.length - 1] : {};
           params = params.concat(Object.keys(options).map(op => `_${op}=${options[op]}`));
 
           // request
