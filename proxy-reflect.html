@@ -153,22 +153,18 @@ let responseHandler = {
       let result = Reflect.apply(target, thisArg, argumentsList)
 		  result.then(({ data }) => {
         console.log('========================');
-      	console.table(data);
+      	console.table(Array.isArray(data) ? data : [data]);
         console.log('========================');
-		  });
+		  }).catch();
       return result;
     }
 }
 
-let alternateCaseHandler = {
+let upperCaseHandler = {
   apply: function(target, thisArg, argumentsList) {
     return Reflect.apply(
       target, thisArg,
-      argumentsList.map(x => typeof x === 'string'
-        ? x.split('').map((y, z) => z % 2 === 0
-              ? y.toUpperCase()
-              : y.toLowerCase()).join('')
-        : x )
+      argumentsList.map(x => typeof x === 'string' ? x.toUpperCase() : x )
     );
   }
 }
