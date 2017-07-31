@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DSL Example</title>
+</head>
+<body>
+
+    <!-- currently does not work in chrome but works in safari -->
+    <pre class="prettyprint"></pre>
+    <script>
+      let select = (...fields) => {
+        let statement = '';
+        let sql = {
+          create: function(...fields) {
+            statement = `SELECT\n ${fields.join(',\n ')}`;
+            return this;
+          },
+
+          from: function(table) {
+            statement = statement + `\nFROM\n ${table}`
+            return this;
+          },
+
+          where: function(...conditions) {
+            statement = statement + `\nWHERE ${conditions.map(x => '\n ' + x).join('')}`
+            return this;
+          },
+
+          order: function(...orders) {
+            statement = statement + `\nORDER BY\n ${orders.join(', ')}`
+            return this;
+          },
+
+          group: function(...groups) {
+            statement = statement + `\nGROUP BY\n ${groups.join(', ')}`
+            return this;
+          },
+
+          build: function() {
+            return statement;
+          }
+
+        }
+
+        return sql.create(...fields)
+      }
+
+      let conditionals = {
+        and: (...conditions) => {
+          return `(${conditions.join(' AND ')})`
+        },
+        or: (...conditions) => {
+          return `(${conditions.join(' OR ')})`
+        }
+      }
+      let { and, or } = conditionals;
+
+      let filters = {
+        eq: (field, value) => {
+          return `${field} = "${value}"`;
+        },
+        ne: (field, value) => {
+          return `${field} <> "${value}"`;
+        }
+      }
+      let { eq, ne } = filters
+
+      let orders = {
+        asc: (field) => {
+          return `${field} ASC`
+        },
+        desc: (field) => {
+          return `${field} DESC`
+        }
+      }
+      let { asc, desc } = orders
+
+    </script>
+    <script id="script">
+
+      let sql = select('email', 'username', 'department', 'company')
+        .from('users')
+        .where(
+          and(
+            or(
+              and(
+                eq('group', 'employees'),
+                eq('company', 'tirebuyer')
+              ),
+              and(
+                eq('group', 'employees'),
+                eq('company', 'atd')
+              )
+            ),
+            ne('department', 'hr')
+          )
+
+        )
+        .group('department', 'company')
+        .order(asc('email'), desc('department'))
+        .build()
+
+      console.log(sql)
+    </script>
+    <script>
+      document.getElementsByTagName('pre')[0].innerHTML =
+        document.getElementsByTagName('title')[0].innerText
+        + ' '
+        + document.getElementById('script').innerText
+    </script>
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+<a href="./index.html">Back</a></html>
