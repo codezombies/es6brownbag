@@ -38,7 +38,7 @@ let Builder  = (obj = {}, ...interceptors) => {
       let ret;
       // if build is called, return the object
       if(property === 'build') {
-        let created = new obj.constructor;
+        let created = Reflect.construct(obj.constructor, []);
         Object.assign(created, _target);
         ret = () => {
           return created;
