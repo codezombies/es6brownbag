@@ -18,10 +18,11 @@
         }
       }
 
-//      let numbers = numbersGenerator();
-//      console.log(numbers.next()) // returns { value: &lt;any&gt;, done: boolean }
-//      console.log(numbers.next())
-//      console.log(numbers.next())
+     console.log('-------------------')
+     let numbers = numbersGenerator();
+     console.log(numbers.next()) // returns { value: &lt;any&gt;, done: boolean }
+     console.log(numbers.next())
+     console.log(numbers.next())
 
       // passing params on generator
       function *paramExample() {
@@ -33,11 +34,12 @@
         console.log('c', c)
       }
 
+      console.log('-------------------')
       let params = paramExample()
       console.log(params.next())     // returns 1 from 'yield 1', first param is ignored
-      console.log(params.next(100))  // 'a = yield 1' = 100, returns 2 + a
-      console.log(params.next(1000)) // 'b = yield 2' = 1000, returns 3 + b
-      console.log(params.next(0))    // 'c = yield 3' = 0, no more waiting yield, done = true
+      console.log(params.next(100))  // 'yield 1 = 100  = a, returns 2 + a
+      console.log(params.next(1000)) // 'yield 2 = 1000 = b, returns 3 + b
+      console.log(params.next(0))    // 'yield 3 = 0    = c, no more waiting yield, done = true
 
       // async operations using generators
       function async(gen) {
@@ -62,9 +64,8 @@
                 // we pass the data to it.next as a result to yield expression
                 next(it.next(data).value);
               }).catch(err => {
-                const error = new Error(err);
-                reject(error); // for the returned promise of async function
-                it.throw(error); // for the generator
+                reject(err); // for the returned promise of async function
+                it.throw(err); // for the generator
               })
             }
           }
@@ -75,6 +76,7 @@
         });
       }
 
+      console.log('-------------------')
       async(function *generator() {
         try {
           let result0 = yield asyncOp0();
@@ -84,14 +86,12 @@
           let result2 = yield asyncOp2(result1);
           console.log('result2', result2)
           return result2;
-        } catch (e) {
-          console.error('ERROR!!!', e.message)
+        } catch (error) {
+          console.error('error', error)
         }
-      }).then(data => {
-        console.log('data from async methods', data)
-      }).catch(error => {
-        console.error('error from async methods', error)
       })
+      .then(data => console.log('return data', data))
+      .catch(error => console.error('return error', error));
 
 
     </script>

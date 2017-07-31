@@ -33,6 +33,9 @@ let loggingHandler = {
 
 let Builder  = (obj = {}, ...interceptors) => {
   let _target = Object.assign({}, obj), handler = {
+    set: function(target, property, value, receiver) {
+      _target[property] = value;
+    },
     get: function(target, property, receiver) {
 
       let ret;
@@ -147,11 +150,21 @@ let API = (rootUrl, baseObj = {}, ...interceptors) => {
   return new Proxy({ ...obj, ...baseObj, rootUrl }, handler)
 }
 
+// sample baseObj for tires
+let baseObj = {
+  count() {
+    return 99;
+  },
+  search(q) {
+    return axios.get(`http://localhost:3002/tires?q=${q}`)
+  }
+}
+
 // other handlers
 let responseHandler = {
     apply: function(target, thisArg, argumentsList) {
       let result = Reflect.apply(target, thisArg, argumentsList)
-		  result.then(({ data }) => {
+		  result.then && result.then(({ data }) => {
         console.log('========================');
       	console.table(Array.isArray(data) ? data : [data]);
         console.log('========================');

@@ -11,35 +11,50 @@
 <script type="text/javascript" id="script">
 
       // chaining async with promises
-      let doPromiseOp = async () => {
-        asyncOp0()
-          .then(asyncOp1)
-          .then(asyncOp2)
-          .then(console.log)
-          .catch(console.error);
+      let doPromiseOp = () => {
+        return new Promise((resolve, reject) => {
+          asyncOp0()
+            .then(data => {
+              console.log('result0', data);
+              return asyncOp1(data);
+            })
+            .then(data => {
+              console.log('result1', data);
+              return asyncOp2(data);
+            })
+            .then(data => {
+              console.log('result2', data);
+              resolve(data);
+            })
+            .catch(error => {
+              console.error('error', error);
+              reject(error);
+            });
+          });
       };
-      doPromiseOp();
+      doPromiseOp()
+        .then(data => console.log('return data', data))
+        .catch(error => console.error('return error', error));
 
       // executing promises "concurrently"
       // resolves when all promises are resolved/rejected
-      Promise.all([
-        new Promise((resolve, reject) => setTimeout(resolve, 3000, "All001")),
-        new Promise((resolve, reject) => setTimeout(resolve, 2000, "All002")),
-        new Promise((resolve, reject) => setTimeout(resolve, 1000, "All003")),
-      ])
-//      .then(console.log)
-      .then(([x, y, z]) => console.log(x, y, z))
-      .catch(console.error)
+      // Promise.all([
+      //   new Promise((resolve, reject) => setTimeout(resolve, 3000, "All001")),
+      //   new Promise((resolve, reject) => setTimeout(resolve, 2000, "All002")),
+      //   new Promise((resolve, reject) => setTimeout(resolve, 1000, "All003")),
+      // ])
+      // .then(([x, y, z]) => console.log(x, y, z))
+      // .catch(console.error)
 
 
       // returns with first resolved/rejected promise
-      Promise.race([
-        new Promise((resolve, reject) => setTimeout(resolve, 3000, "RACE001")),
-        new Promise((resolve, reject) => setTimeout(resolve, 2000, "RACE002")),
-        new Promise((resolve, reject) => setTimeout(resolve, 1000, "RACE003")),
-      ])
-        .then(console.log)
-        .catch(console.error)
+      // Promise.race([
+      //   new Promise((resolve, reject) => setTimeout(resolve, 3000, "RACE001")),
+      //   new Promise((resolve, reject) => setTimeout(resolve, 2000, "RACE002")),
+      //   new Promise((resolve, reject) => setTimeout(resolve, 1000, "RACE003")),
+      // ])
+      //   .then(console.log)
+      //   .catch(console.error)
 
     </script>
 <script>
