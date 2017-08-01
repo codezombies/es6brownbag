@@ -46,7 +46,7 @@
 
         // weak check for promises
         let isPromise = (promise) => {
-          return typeof promise.then === 'function'
+          return promise !== undefined && typeof promise.then === 'function'
             && typeof promise.catch === 'function';
         }
 

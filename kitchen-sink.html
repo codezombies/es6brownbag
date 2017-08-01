@@ -84,7 +84,7 @@
 
   class SearchTerm {
     set filters(filters) {
-      if(filters.length) {
+      if(filters && filters.length) {
         let equalityFilters = filters.filter(term => term.indexOf(':[') < 0)
         let rangeFilters = filters.filter(term => term.indexOf(':[') > 0)
 
@@ -117,15 +117,15 @@
       }
     }
 
-    set sorts(sorts = []) {
-      if(sorts.length) {
+    set sorts(sorts) {
+      if(sorts && sorts.length) {
         this._order = `_order=${sorts.map(x => x.indexOf('+') === 0 ? 'asc' : 'desc').join(',')}`
         this._sort = `_sort=${sorts.map(x => x.substring(1)).join(',')}`
       }
     }
 
     set text(text) {
-      if(text.length) {
+      if(text && text.length) {
         this._text = `q=${text.join(',')}`
       }
     }
@@ -135,29 +135,51 @@
     }
   }
 
-  // Good brand:Michelin warranty:[50000] price:[100,120] +brand -name
+  class Tire {
+
+    get formattedPrice() {
+      return `$${this.price}`
+    }
+
+    get formattedWarranty() {
+      return `${this.warranty / 1000}K miles`;
+    }
+
+    get formattedRunFlat() {
+      return this.runflat ? 'Yes' : 'No';
+    }
+
+    get formattedInStock() {
+      return this.instock ? 'Yes' : 'No';
+    }
+
+    onChange(e) {
+      console.log('test', e)
+    }
+  }
+
   let htmlify = (tire) => {
     return `
-    <div class="card mt10">
-      <div class="card-header">
-        <div class="d-flex justify-content-between">
-            <div>
-               ${tire.brand} ${tire.name}
-            </div>
-            <div>
-               ${tire.price}
-            </div>
-       </div>
-      </div>
-      <div class="card-block">
-        <div class="card-subtitle">Features</div>
-        <ul>
-          <li>Warranty: ${tire.warranty} miles</li>
-          <li>Run Flat: ${tire.runflat ? 'Yes' : 'No'} </li>
-          <li>In Stock: ${tire.instock ? 'Yes' : 'No'}</li>
-        </ul>
-      </div>
-    </div>
+        <div class="card mt10">
+          <div class="card-header">
+            <div class="d-flex justify-content-between">
+              <div>
+                 <strong>${tire.brand} ${tire.name}</strong>
+              </div>
+              <div>
+                 <strong>${tire.formattedPrice}</strong>
+              </div>
+           </div>
+          </div>
+          <div class="card-block">
+            <div class="card-subtitle">Features</div>
+            <ul>
+              <li>Warranty: ${tire.formattedWarranty}</li>
+              <li>Run Flat: ${tire.formattedRunFlat}</li>
+              <li>In Stock: ${tire.formattedInStock}</li>
+            </ul>
+          </div>
+        </div>
       `
   }
 
@@ -180,6 +202,10 @@
     }
   }
   let api = API(baseObj, responseHandler)
+  let enhance = (obj, proto = {}) => {
+    let { create, assign } = Object;
+    return assign(create(proto), { ...obj });
+  }
   let doSearch = (text) => {
     async(function *doSearch() {
       let terms = text.split(' ')
@@ -192,7 +218,6 @@
       let sorts = terms.filter(sortsFilter)
 
       let searchText = terms.filter(term => !facetFilter(term) && !sortsFilter(term));
-      console.log(searchText)
 
       let searchTerm = new SearchTerm()
       searchTerm.filters = filters;
@@ -200,7 +225,8 @@
       searchTerm.text = searchText
 
       let { data} = yield api.query(searchTerm);
-      result.innerHTML = data.map(htmlify).join('')
+      let proto = new Tire();
+      result.innerHTML = data.map(x => htmlify(enhance(x, proto))).join('')
     });
   }
 
