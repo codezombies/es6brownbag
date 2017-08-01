@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Kitchen Sink</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" />
+    <style>
+      .mt10 {
+        margin-top: 10px;
+      }
+    </style>
+</head>
+<body>
+
+ <div class="container mt10">
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="input-group">
+        <input id="search" type="text" class="form-control" placeholder="Search for...">
+        <span class="input-group-btn">
+          <button id="go" class="btn btn-secondary" type="button">Go!</button>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="result" class="container"></div>
+
+<script>
+  const button = document.getElementById('go'),
+        search = document.getElementById('search'),
+        result = document.getElementById('result');
+
+  function async(gen) {
+
+    // weak check for promises
+    let isPromise = (promise) => {
+      return promise !== undefined
+        && typeof promise.then === 'function'
+        && typeof promise.catch === 'function';
+    }
+
+    return new Promise((resolve, reject) => {
+
+      // recursively call next until we no longer have a promise
+      // we assume that we only yield promises so non-promise result is the final result
+      let next = (promise) => {
+        if (!isPromise(promise)) {
+          // not a promise - this is the actual result
+          resolve(promise);
+        }
+        else {
+          promise.then(data => {
+            // we pass the data to it.next as a result to yield expression
+            next(it.next(data).value);
+          }).catch(err => {
+            reject(err); // for the returned promise of async function
+            it.throw(err); // for the generator
+          })
+        }
+      }
+
+      // start generator
+      let it = gen();
+      next(it.next().value);
+    });
+  }
+
+  let API = (baseObj = {}, ...interceptors) => {
+    let handler = {
+      get: function(target, property, receiver) {
+        return this.compose(Reflect.get(target, property, receiver), interceptors);
+      },
+      compose : function(result, interceptors) {
+        interceptors.forEach(interceptor => {
+          result = new Proxy(result, interceptor);
+        })
+        return result;
+      }
+    }
+    return new Proxy(baseObj, handler)
+  };
+
+  class SearchTerm {
+    set filters(filters) {
+      if(filters.length) {
+        let equalityFilters = filters.filter(term => term.indexOf(':[') < 0)
+        let rangeFilters = filters.filter(term => term.indexOf(':[') > 0)
+
+        rangeFilters.map(term => {
+          let [key, value] = term.split(':')
+          let [low, high] = value.substring(1, value.length - 1).split(",").map(x => x.trim());
+
+
+          // if there is only 1 value, high = undefined
+          if(high === undefined) {
+            equalityFilters.push(`${key}:${low}`);
+          }
+          else {
+            if(low !== "") {
+              equalityFilters.push(`${key}_gte:${low}`);
+            }
+            if(high !== "") {
+              equalityFilters.push(`${key}_lte:${high}`);
+            }
+          }
+        })
+
+        let params = [];
+        equalityFilters.map(term => {
+          let [key, value] = term.split(':')
+          params.push(`${key}=${value}`)
+        })
+
+        this._filters = params.join('&')
+      }
+    }
+
+    set sorts(sorts = []) {
+      if(sorts.length) {
+        this._order = `_order=${sorts.map(x => x.indexOf('+') === 0 ? 'asc' : 'desc').join(',')}`
+        this._sort = `_sort=${sorts.map(x => x.substring(1)).join(',')}`
+      }
+    }
+
+    set text(text) {
+      if(text.length) {
+        this._text = `q=${text.join(',')}`
+      }
+    }
+
+    toQuery() {
+      return [this._filters, this._sort, this._order, this._text].filter(x => x !== undefined).join('&')
+    }
+  }
+
+  // Good brand:Michelin warranty:[50000] price:[100,120] +brand -name
+  let htmlify = (tire) => {
+    return `
+    <div class="card mt10">
+      <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+               ${tire.brand} ${tire.name}
+            </div>
+            <div>
+               ${tire.price}
+            </div>
+       </div>
+      </div>
+      <div class="card-block">
+        <div class="card-subtitle">Features</div>
+        <ul>
+          <li>Warranty: ${tire.warranty} miles</li>
+          <li>Run Flat: ${tire.runflat ? 'Yes' : 'No'} </li>
+          <li>In Stock: ${tire.instock ? 'Yes' : 'No'}</li>
+        </ul>
+      </div>
+    </div>
+      `
+  }
+
+  // for logging only
+  let responseHandler = {
+      apply: function(target, thisArg, argumentsList) {
+        let result = Reflect.apply(target, thisArg, argumentsList)
+  		  result.then && result.then(({ data }) => {
+          console.log('========================');
+        	console.table(Array.isArray(data) ? data : [data]);
+          console.log('========================');
+  		  }).catch();
+        return result;
+      }
+  }
+
+  let baseObj = {
+    query(searchTerm) {
+      return axios.get(`http://localhost:3002/tires?${searchTerm.toQuery()}`);
+    }
+  }
+  let api = API(baseObj, responseHandler)
+  let doSearch = (text) => {
+    async(function *doSearch() {
+      let terms = text.split(' ')
+      // normal filters, facet fields
+      let facetFilter = term => term.indexOf(':') > 0
+      let filters = terms.filter(facetFilter)
+
+      // sort
+      let sortsFilter = term => term.indexOf('+') === 0 || term.indexOf('-') === 0
+      let sorts = terms.filter(sortsFilter)
+
+      let searchText = terms.filter(term => !facetFilter(term) && !sortsFilter(term));
+      console.log(searchText)
+
+      let searchTerm = new SearchTerm()
+      searchTerm.filters = filters;
+      searchTerm.sorts = sorts
+      searchTerm.text = searchText
+
+      let { data} = yield api.query(searchTerm);
+      result.innerHTML = data.map(htmlify).join('')
+    });
+  }
+
+  button.onclick = () => {
+    doSearch(search.value)
+  }
+
+  const KEYCODE_ENTER = 13;
+  search.onkeyup = function ({keyCode}) {
+    if(keyCode === KEYCODE_ENTER) {
+      doSearch(this.value)
+    }
+  }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
+</body>
+</html>

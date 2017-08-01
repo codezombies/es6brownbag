@@ -1,27 +1,27 @@
 {
   "users": [
     {
-      "id" : 1,
+      "id": 1,
       "name": "Ron",
       "group": "admin"
     },
     {
-      "id" : 2,
+      "id": 2,
       "name": "John Doe",
       "group": "employee"
     },
     {
-      "id" : 3,
+      "id": 3,
       "name": "Jane Doe",
       "group": "employee"
     },
     {
-      "id" : 4,
+      "id": 4,
       "name": "Sarah Kerrigan",
       "group": "customer"
     },
     {
-      "id" : 5,
+      "id": 5,
       "name": "Jim Raynor",
       "group": "customer"
     }
