@@ -13,41 +13,37 @@
 
 
 <div class="row">
-    <span class="bigtext">Text 1:</span> <input data-store="text" class="bigtext" type="text" placeholder="type here"/>
+    <span class="bigtext">Text 1:</span> <input data-store="text1" class="bigtext" type="text" placeholder="type here"/>
 </div>
 <div>
-    <span class="bigtext">Text 2:</span> <input data-store="text" class="bigtext" type="text" placeholder="type here"/>
+    <span class="bigtext">Text 2:</span> <input data-store="text2" class="bigtext" type="text" placeholder="type here"/>
 </div>
 <div>
-    <span class="bigtext">Result:</span> <span class="bigtext" data-store="text"></span>
+    <span class="bigtext">Result:</span> <span class="bigtext" id="result"></span>
 </div>
-<pre class="prettyprint"></pre>
+<pre class="prettyprint" contenteditable="true"></pre>
 
     <script src="lib/store.js"></script>
     <script type="text/javascript" id="script">
     document.querySelectorAll('input[data-store]').forEach(e => {
       let storeKey = e.getAttribute('data-store');
-      e.receive = function(newVal, key) {
-        if(storeKey === key) {
-          this.value = newVal;
-        }
+      e.receive = function({ data }) {
+        console.log(storeKey, data[storeKey])
+        this.value = data[storeKey] ? data[storeKey].value : '';
       }
       e.addEventListener('input', () => e.send({ key: storeKey, value: e.value}))
       store.subscribe(e);
     });
-    document.querySelectorAll('span[data-store]').forEach(e => {
-      let storeKey = e.getAttribute('data-store');
-      e.receive = function(newVal, key) {
-        if(key === storeKey) {
-          this.innerText = newVal.split('').reverse().join('');
-        }
-      }
-      store.subscribe(e);
-    });
 
-    let subscriber = {
-      receive(val) {
-        console.warn(val);
+    let result = document.getElementById('result')
+    result.receive = function({ changed: { value: newVal } }, key) {
+      this.innerText = newVal.split('').reverse().join('');
+    };
+    store.subscribe(result);
+
+    let logger = {
+      receive( { changed: { key, value }}) {
+        console.log(`${key} = ${value}`);
       }
     }
 
@@ -57,7 +53,7 @@
       }
     }
 
-//    store.subscribe('text', subscriber);
+    store.subscribe(logger);
 //    store.middleware(upperCaseMiddleware)
 
     </script>
@@ -65,11 +61,10 @@
   window.onload = () => {
     axios.get('lib/store.js').then(({data}) => {
       document.getElementsByTagName('pre')[0].innerHTML =
-        document.getElementsByTagName('title')[0].innerText
-        + ' '
-        + data
-        + '\n\n'
-        + document.getElementById('script').innerText
+        `
+        ${document.getElementById('script').innerText}
+        ${data}
+        `
     });
   }
 
