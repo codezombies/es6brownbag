@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ES6 Brown Bag - Data Store</title>
+    <style>
+        input { width: 80%; padding: 2px }
+        .bigtext { font-size: 2em; }
+        .row { margin-top: 10px; margin-bottom: 5px }
+    </style>
+</head>
+<body>
+
+
+<div class="row">
+    <span class="bigtext">Text 1:</span> <input data-store="text" class="bigtext" type="text" placeholder="type here"/>
+</div>
+<div>
+    <span class="bigtext">Text 2:</span> <input data-store="text" class="bigtext" type="text" placeholder="type here"/>
+</div>
+<div>
+    <span class="bigtext">Result:</span> <span class="bigtext" data-store="text"></span>
+</div>
+<pre class="prettyprint"></pre>
+
+    <script src="lib/store.js"></script>
+    <script type="text/javascript" id="script">
+    document.querySelectorAll('input[data-store]').forEach(e => {
+      let storeKey = e.getAttribute('data-store');
+      e.receive = function(newVal, key) {
+        if(storeKey === key) {
+          this.value = newVal;
+        }
+      }
+      e.addEventListener('input', () => e.send({ key: storeKey, value: e.value}))
+      store.subscribe(e);
+    });
+    document.querySelectorAll('span[data-store]').forEach(e => {
+      let storeKey = e.getAttribute('data-store');
+      e.receive = function(newVal, key) {
+        if(key === storeKey) {
+          this.innerText = newVal.split('').reverse().join('');
+        }
+      }
+      store.subscribe(e);
+    });
+
+    let subscriber = {
+      receive(val) {
+        console.warn(val);
+      }
+    }
+
+    let upperCaseMiddleware = {
+      process(val) {
+        return typeof val === 'string' ? val.toUpperCase() : val
+      }
+    }
+
+//    store.subscribe('text', subscriber);
+//    store.middleware(upperCaseMiddleware)
+
+    </script>
+<script>
+  window.onload = () => {
+    axios.get('lib/store.js').then(({data}) => {
+      document.getElementsByTagName('pre')[0].innerHTML =
+        document.getElementsByTagName('title')[0].innerText
+        + ' '
+        + data
+        + '\n\n'
+        + document.getElementById('script').innerText
+    });
+  }
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script></body>
+<a href="./index.html">Back</a></html>
