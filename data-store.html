@@ -36,7 +36,9 @@
 
     let result = document.getElementById('result')
     result.receive = function({ changed: { value: newVal } }, key) {
-      this.innerText = newVal.split('').reverse().join('');
+      if(newVal) {
+        this.innerText = newVal.split('').reverse().join('');
+      }
     };
     store.subscribe(result);
 
