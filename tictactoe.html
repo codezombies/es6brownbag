@@ -92,7 +92,7 @@
       let tr = document.createElement('tr');
       for(let col = 0; col < game.board.length; col++) {
         let td = document.createElement('td');
-        td.receive = function(board, key) {
+        td.receive = function({ data, changed: { value: board, key }}) {
           if(key === 'game') {
             this.style.backgroundColor = board[row][col] || '#fff';
           }
@@ -113,7 +113,7 @@
     }
 
     let gameSubscriber = {
-        receive(value, key) {
+        receive({data, changed: { key, value }}) {
           switch(key) {
             case 'game': {
               game.board = value;
@@ -134,8 +134,9 @@
     }
 
     let consoleSubscriber = {
-      receive(value, key) {
+      receive({data, changed: {key, value} }) {
         if(key === 'game') {
+
           console.table(value)
         }
       }
@@ -143,6 +144,7 @@
 
     let cloneBoard = {
       process(value, key) {
+        console.log(value, key)
         if(key === 'game') {
           let [a, b, c, d, e] = value
           return [[...a],  [...b], [...c], [...d], [...e]];

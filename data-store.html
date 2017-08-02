@@ -28,7 +28,6 @@
     document.querySelectorAll('input[data-store]').forEach(e => {
       let storeKey = e.getAttribute('data-store');
       e.receive = function({ data }) {
-        console.log(storeKey, data[storeKey])
         this.value = data[storeKey] ? data[storeKey].value : '';
       }
       e.addEventListener('input', () => e.send({ key: storeKey, value: e.value}))
@@ -54,7 +53,7 @@
     }
 
     store.subscribe(logger);
-//    store.middleware(upperCaseMiddleware)
+    store.middleware(upperCaseMiddleware)
 
     </script>
 <script>
